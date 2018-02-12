@@ -22,14 +22,15 @@ def get_input_path(stypes, input_file, const_stypes_str):
     new_stypes = []
     for const_stype in const_stypes:
         for stype in stypes:
-            if const_stype in stype:
-                new_stypes.append(stype)
+            stype_flags = stype.split('_')
+            for stype_flag in stype_flags:
+                if const_stype == stype_flag:
+                    new_stypes.append(stype)
 
         stypes = new_stypes
         new_stypes = []
 
     # make input paths
-    stypes.sort()
     for stype in stypes:
         input_paths.append(os.path.join(stype, input_file))
 
@@ -73,12 +74,14 @@ def extract_disp_data(input_paths, charge_file, var_stype):
 
         charges = pd.read_csv(input_path, header=None, dtype=np.float32)
         charges = (charges.rename(columns={0: var})).T
+        charges = charges[extract_numbers]
 
         if data_df is not None:
             data_df = pd.concat([data_df, charges], axis=0)
         else:
             data_df = charges
 
+    data_df = data_df.sort_index()
     return data_df
 
 
